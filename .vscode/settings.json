@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "box.C": "cpp",
+        "boxset.C": "cpp",
+        "test.C": "cpp",
+        "testGUI.C": "cpp"
+    }
+}
