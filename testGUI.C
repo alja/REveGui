@@ -11,9 +11,24 @@
 #include <ROOT/REveElement.hxx>
 #include <ROOT/REveScene.hxx>
 #include <ROOT/REveManager.hxx>
-#include <ROOT/REveBoxSet.hxx>
+#include <ROOT/REvePointSet.hxx>
 
 using namespace ROOT::Experimental;
+
+REvePointSet* makePointSet()
+{
+    TRandom &r = *gRandom;
+    int npoints = 100; float s  =2;
+    auto ps = new REvePointSet("fu", "", npoints);
+
+    for (Int_t i=0; i<npoints; ++i)
+       ps->SetNextPoint(r.Uniform(-s,s), r.Uniform(-s,s), r.Uniform(-s,s));
+
+    ps->SetMarkerColor(r.Integer(700));
+    ps->SetMarkerSize(3+r.Uniform(1, 7));
+    ps->SetMarkerStyle(4);
+    return ps;
+}
 
 class EventManager : public REveElement
 {
@@ -31,53 +46,24 @@ public:
    {
       fCount++;
       printf("At event %d\n", fCount);
+
+    auto scene = gEve->GetEventScene();
+    scene->DestroyElements();
+    scene->AddElement(makePointSet());
+
    }
 
 };
 
-REveBoxSet *testGUI(Int_t num = 100)
+void testGUI()
 {
    auto eveMng = REveManager::Create();
 
    TRandom r(0);
 
-   auto pal = new REveRGBAPalette(0, 130);
 
-   auto q = new REveBoxSet("BoxSet");
-   q->SetPalette(pal);
-   q->Reset(REveBoxSet::kBT_FreeBox, kFALSE, 64);
-
-#define RND_BOX(x) (Float_t) r.Uniform(-(x), (x))
-
-   Float_t verts[24];
-   for (Int_t i = 0; i < num; ++i)
-   {
-      Float_t x = RND_BOX(10);
-      Float_t y = RND_BOX(10);
-      Float_t z = RND_BOX(10);
-      Float_t a = r.Uniform(0.2, 0.5);
-      Float_t d = 0.05;
-      Float_t verts[24] = {
-          x - a + RND_BOX(d), y - a + RND_BOX(d), z - a + RND_BOX(d),
-          x - a + RND_BOX(d), y + a + RND_BOX(d), z - a + RND_BOX(d),
-          x + a + RND_BOX(d), y + a + RND_BOX(d), z - a + RND_BOX(d),
-          x + a + RND_BOX(d), y - a + RND_BOX(d), z - a + RND_BOX(d),
-          x - a + RND_BOX(d), y - a + RND_BOX(d), z + a + RND_BOX(d),
-          x - a + RND_BOX(d), y + a + RND_BOX(d), z + a + RND_BOX(d),
-          x + a + RND_BOX(d), y + a + RND_BOX(d), z + a + RND_BOX(d),
-          x + a + RND_BOX(d), y - a + RND_BOX(d), z + a + RND_BOX(d)};
-      q->AddBox(verts);
-      q->DigitValue(r.Uniform(0, 130));
-   }
-   q->RefitPlex();
-
-#undef RND_BOX
-
-   // Uncomment these two lines to get internal highlight / selection.
-   q->SetPickable(1);
-   q->SetAlwaysSecSelect(1);
-
-   eveMng->GetEventScene()->AddElement(q);
+   eveMng->GetGlobalScene()->AddElement(makePointSet());
+   eveMng->GetEventScene()->AddElement(makePointSet());
 
    eveMng->Show();
 
@@ -88,7 +74,4 @@ REveBoxSet *testGUI(Int_t num = 100)
    eventMng->SetName("EventManager");
    eveMng->GetWorld()->AddElement(eventMng);
    eveMng->GetWorld()->AddCommand("NextEvent", "sap-icon://step", eventMng, "NextEvent()");
-
-
-   return q;
 }
