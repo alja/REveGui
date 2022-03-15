@@ -10,7 +10,6 @@
      <customHeader>
        <Bar id="otb1" >
          <contentLeft>
-
             <MenuButton text="View" type="Transparent"  enabled="true">
               <menu>
                 <Menu itemSelected="onViewMenuAction" id="menuViewId"/>
@@ -20,6 +19,9 @@
          <contentMiddle>
                 <FormattedText id="centerTitle" htmlText="ABC Event Display"/>
          </contentMiddle>
+         <contentRight>
+                <Label id="infoLabel" text="text"/>
+         </contentRight>
         </Bar>
      </customHeader>
       <content>

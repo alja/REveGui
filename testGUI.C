@@ -12,6 +12,8 @@
 #include <ROOT/REveScene.hxx>
 #include <ROOT/REveManager.hxx>
 #include <ROOT/REvePointSet.hxx>
+#include "nlohmann/json.hpp"
+
 
 using namespace ROOT::Experimental;
 
@@ -30,37 +32,60 @@ REvePointSet* makePointSet()
     return ps;
 }
 
+class GuiInfo : public REveElement
+{
+public:
+   int fCount{0};
+   int fTotal{10};
+   int fLumi{1111};
+
+   using REveElement::WriteCoreJson;
+   int WriteCoreJson(nlohmann::json &j, int rnr_offset) override
+   {
+      j["path"] = "data.root";
+      j["count"] = fCount;
+      j["total"] = fTotal;
+      j["UT_PostStream"] = "UT_refresh_event_info";
+      return REveElement::WriteCoreJson(j, 0);
+   }
+};
+
 class EventManager : public REveElement
 {
 private:
-   int  fCount{0};
+   GuiInfo *fGui{nullptr};
 
 public:
    EventManager()
    {
+      SetName("EventManager");
    }
 
    virtual ~EventManager() {}
 
-   void NextEvent()
+   void InitGuiInfo()
    {
-      fCount++;
-      printf("At event %d\n", fCount);
-
-    auto scene = gEve->GetEventScene();
-    scene->DestroyElements();
-    scene->AddElement(makePointSet());
-
+      fGui = new GuiInfo();
+      fGui->SetName("WebGuiInfo");
+      gEve->GetWorld()->AddElement(fGui);
    }
 
+   void NextEvent()
+   {
+      fGui->fCount++;
+      fGui->StampObjProps();
+      printf("At event %d\n", fGui->fCount);
+
+      auto scene = gEve->GetEventScene();
+      scene->DestroyElements();
+      scene->AddElement(makePointSet());
+   }
 };
 
-void testGUI()
+void
+testGUI()
 {
    auto eveMng = REveManager::Create();
-
-   TRandom r(0);
-
 
    eveMng->GetGlobalScene()->AddElement(makePointSet());
    eveMng->GetEventScene()->AddElement(makePointSet());
@@ -71,7 +96,7 @@ void testGUI()
    eveMng->SetDefaultHtmlPage("file:mydir/eventDisplay.html");
    
    auto eventMng = new EventManager();
-   eventMng->SetName("EventManager");
    eveMng->GetWorld()->AddElement(eventMng);
+   eventMng->InitGuiInfo();
    eveMng->GetWorld()->AddCommand("NextEvent", "sap-icon://step", eventMng, "NextEvent()");
 }

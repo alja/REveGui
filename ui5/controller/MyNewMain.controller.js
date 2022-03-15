@@ -27,16 +27,15 @@ sap.ui.define(['rootui5/eve7/controller/Main.controller',
          // could loop all the elements in top level and check for typename
          var last = world.length -1;
 
-         if (world[last]._typename == "EventManager") {
+         if (world[last]._typename == "GuiInfo") {
             this.fw2gui = (world[last]);
 
             var pthis = this;
-            this.mgr.UT_refresh_event_info = function() {
-               console.log("jay ", world[last]);
+            this.mgr.UT_refresh_event_info = function () {
                pthis.showEventInfo();
             }
 
-             pthis.showEventInfo();
+            pthis.showEventInfo();
          }
       },
 
@@ -46,6 +45,10 @@ sap.ui.define(['rootui5/eve7/controller/Main.controller',
       },
 
       showEventInfo : function() {
+         let tinfo = this.fw2gui.path + ":" + this.fw2gui.total + "/" + this.fw2gui.count;
+         document.title = tinfo;
+         let infoLabel = this.getView().byId("infoLabel");
+         infoLabel.setText(tinfo);
       },
 
       nextEvent : function(oEvent) {
