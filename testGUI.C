@@ -91,7 +91,7 @@ testGUI()
    eveMng->GetEventScene()->AddElement(makePointSet());
 
    eveMng->Show();
-
+   eveMng->GetWebWindow()->SetClientVersion("22.22");
    eveMng->AddLocation("mydir/", "ui5");
    eveMng->SetDefaultHtmlPage("file:mydir/eventDisplay.html");
    
