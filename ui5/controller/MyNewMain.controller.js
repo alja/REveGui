@@ -25,18 +25,18 @@ sap.ui.define(['rootui5/eve7/controller/Main.controller',
 
          // this is a prediction that the fireworks GUI is the last element after scenes
          // could loop all the elements in top level and check for typename
-         var last = world.length -1;
 
-         if (world[last]._typename == "GuiInfo") {
-            this.fw2gui = (world[last]);
-
-            var pthis = this;
-            this.mgr.UT_refresh_event_info = function () {
-               pthis.showEventInfo();
+         world.forEach((item) => {
+            if (item._typename == "GuiInfo") {
+               this.fw2gui = item;
+               var pthis = this;
+               this.mgr.UT_refresh_event_info = function () {
+                  pthis.showEventInfo();
+               }
+               this.showEventInfo();
+               return;
             }
-
-            pthis.showEventInfo();
-         }
+         });
       },
 
       onWebsocketMsg : function(handle, msg, offset)
